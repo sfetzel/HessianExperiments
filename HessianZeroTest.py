@@ -17,21 +17,24 @@ mat2 = randn((2, 1), requires_grad=True)
 
 x = tensor([1., 5., 3.])
 
-def layer1(x, mat1):
-    return x @ mat1.reshape(3, 2)
+def layer1(x, mat1_):
+    return x @ (mat1_ ** 1).reshape(3, 2)
 
-def layer2(x, mat2):
-    return x @ mat2.reshape(2, 1)
+def layer2(x, mat2_):
+    return x @ (mat2_ ** 1).reshape(2, 1)
 
-def model(mat1, mat2):
-    return (layer2(layer1(x, mat1), mat2)).sum()
+
+def model(mat1_, mat2_):
+    return (layer2(layer1(x, mat1_), mat2_)).sum()
 
 
 inputs = (mat1.reshape(-1), mat2.reshape(-1))
-out = model(*inputs)
-out.backward()
-print(hessian(model, inputs))
-print(mat1.is_leaf)
-print(mat1.grad)
-print(mat2.grad)
+hessian_l = hessian(model, inputs, strict=False)
 
+# Hessian as matrix
+#print(torch.cat(tuple(torch.cat(row_block, dim=1) for row_block in hessian_l)))
+
+# The off-diagonal blocks are non-zero.
+# for a two layer network without activations, we have I * X as off-diagonals.
+
+print(hessian_l)
