@@ -2,9 +2,7 @@
 # diagonal blocks of the Hessian are zeros.
 import torch
 from torch import tensor, randn, eye, kron
-from torch.autograd import Variable
 from torch.autograd.functional import hessian
-from torch.nn.functional import tanh, sigmoid
 
 from utils import S_matrix, unvectorize, vectorize
 
@@ -23,7 +21,10 @@ mat2 = tensor([[7., 2.],
 mat3 = tensor([[1.],
                [1.]])
 
-x = tensor([[1., 5., 3.]]) # [2., 3., 4.]
+mat4 = tensor([[1., 1.]])
+
+x = tensor([[1., 5., 3.],
+            [2., 3., 4.]])
 
 
 def layer1(x, mat1_):
@@ -35,22 +36,24 @@ def layer2(x, mat2_):
 
 
 def model(mat1_, mat2_):
-    return layer2(layer1(x, mat1_), mat2_) @ mat3
+    return mat4 @ (layer2(layer1(x, mat1_), mat2_) @ mat3)
 
 
 inputs = (vectorize(mat1), vectorize(mat2))
 
-out_layer2 = (x @ mat1) @ mat2 @ mat3
+out_layer2 = mat4 @ ((x @ mat1) @ mat2 @ mat3)
 print(out_layer2)
 loss = out_layer2
 loss.backward()
 
 out_layer1 = x @ mat1
 print(mat2.grad)
-print(tensor([[1., 1.]]) * out_layer1.t())
+# X^T @ (dL/dY) = X^T @ (mat4.T @ mat3.T)
+print(out_layer1.t() @ mat4.t() @ mat3.t())
 
 print(mat1.grad)
-print(tensor([[1., 1.]]) @ mat2.t() * x.t())
+# # X^T @ (dL/dY) = X^T @ (mat4.T @ mat3.T @ mat2.T)
+print(x.t() @ mat4.t() @ mat3.t() @ mat2.t())
 
 hessian_l = hessian(model, inputs, strict=False)
 
@@ -61,4 +64,4 @@ hessian_l = hessian(model, inputs, strict=False)
 print("True hessian:")
 print(hessian_l[0][1])
 
-print(kron2(kron(eye(2), tensor([[1., 1.]])) @ S_matrix(2), x.t()))
+print(kron(eye(2), x.t()  @ mat4.t() @ mat3.t()) @ S_matrix(2))
