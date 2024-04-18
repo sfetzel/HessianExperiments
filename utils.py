@@ -14,5 +14,15 @@ def S_matrix(n):
         S[k, l] = 1
     return S
 
-print(S_matrix(2))
-print(S_matrix(3))
+
+def vectorize(mat):
+    return mat.t().reshape(-1)
+
+
+def unvectorize(vec, shape):
+    return vec.reshape(shape[::-1]).t()
+
+
+if __name__ == "__main__":
+    print(S_matrix(2))
+    print(S_matrix(3))
