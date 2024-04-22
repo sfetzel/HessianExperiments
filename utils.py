@@ -22,6 +22,9 @@ def vectorize(mat):
 def unvectorize(vec, shape):
     return vec.reshape(shape[::-1]).t()
 
+def pointwise(A, B):
+    assert A.shape == B.shape
+    return A * B
 
 if __name__ == "__main__":
     print(S_matrix(2))
