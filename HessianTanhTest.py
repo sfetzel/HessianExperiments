@@ -71,7 +71,7 @@ print(hessian_l[0][0])
 B = mat3.T * activation_f_diff(out_layer2) * diag(vectorize(mat2.T) * vectorize(activation_f_diff2(out_layer1)))
 part1 = kron2(eye(2), x.T) @ (B @ kron2(eye(2), x))
 
-g2 = vectorize(pointwise(mat2.T, activation_f_diff(out_layer1))).reshape(2,1)
+g2 = vectorize(pointwise(mat2.T, activation_f_diff(out_layer1))).reshape(-1, 1)
 part2 = kron2(eye(2), x.T) @ (activation_f_diff2(out_layer2) * g2) @ (g2.T @ kron2(eye(2), x))
 print(part1 + part2)
 #print(kron2(eye(2), x.t()) @ kron2(mat2, eye(1)) @ h0_diag @ kron2(mat2.t(), x))
